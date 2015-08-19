@@ -1,7 +1,9 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include "client.h"
 
 #include <QDebug>
+#include <QProcess>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -44,5 +46,12 @@ void MainWindow::handle_file_item(QString str) {
     ui->sourceType->setVisible(true);
     ui->sourceLabel->setVisible(true);
     ui->startScan->setVisible(true);
+
+    QProcess *process = new QProcess;
+    process->start("server");
+
+    Client *client = new Client;
+    client->start();
+
 
 }
