@@ -10,10 +10,15 @@
 #include <QJsonObject>
 #include <QJsonDocument>
 
+
 FileProcessor::FileProcessor(QObject *parent)
 {
     sigMap = new QMap<QString, QString>;
     prepareMap();
+}
+
+void FileProcessor::run() {
+    processFile();
 }
 
 void FileProcessor::prepareMap() {
@@ -32,7 +37,7 @@ void FileProcessor::prepareMap() {
     }
 }
 
-void FileProcessor::processFile(QString filePath) {
+void FileProcessor::processFile() {
     QFile target(filePath);
 
     if (target.size() > 157286400) { // 150Mb
@@ -47,6 +52,7 @@ void FileProcessor::processFile(QString filePath) {
             int index = matcher.indexIn(hexContent);
             if (index != -1) {
                 toJson(sigMap->value(key), filePath);
+                return;
             }
         }
     } else {

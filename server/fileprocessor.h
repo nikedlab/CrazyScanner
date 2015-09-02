@@ -3,16 +3,19 @@
 
 #include <QMap>
 #include <QObject>
+#include <QRunnable>
 
-class FileProcessor : public QObject
-{
+class FileProcessor : public QObject, public QRunnable  {
     Q_OBJECT
 
 public:
     FileProcessor(QObject *parent = 0);
     virtual ~FileProcessor();
-    void processFile(QString filePath);
+    void processFile();
+    QString filePath;
 
+protected:
+    void run();
 
 private:
     void prepareMap();

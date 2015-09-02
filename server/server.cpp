@@ -11,6 +11,8 @@
 Server::Server(QObject *parent) :
     QTcpServer(parent)
 {
+    pool = new QThreadPool(this);
+    pool->setMaxThreadCount(5);
 }
 
 void Server::startServer(){
@@ -36,22 +38,29 @@ void Server::readyRead() {
     client = (QTcpSocket*)sender();
     QString path = QString::fromUtf8(client->readLine()).trimmed();
     qDebug() << "Path: " + path;
-    FileProcessor processor;
-    connect(&processor, SIGNAL(sendVerdict(QByteArray)), this, SLOT(printVerdict(QByteArray)));
+    FileProcessor *processor = new FileProcessor(this);
+    connect(processor, SIGNAL(sendVerdict(QByteArray)), this, SLOT(printVerdict(QByteArray)));
+
+    processor->setAutoDelete(true);
 
     QFileInfo fileInfo(path);
     if (fileInfo.exists()) {
         if (fileInfo.isFile()) {
-            processor.processFile(fileInfo.absoluteFilePath());
+            //processor.processFile(fileInfo.absoluteFilePath());
 
+            processor->filePath = fileInfo.absoluteFilePath();
+            pool->start(processor);
         } else {
             QDirIterator dirIterator(path, QDir::NoDotAndDotDot | QDir::AllEntries, QDirIterator::Subdirectories);
             while (dirIterator.hasNext()) {
-                processor.processFile(dirIterator.next());
+                processor->filePath = dirIterator.next();
+                pool->start(processor);
+                //processor.processFile(dirIterator.next());
             }
         }
     }
 
+    delete processor;
     client->close();
 }
 

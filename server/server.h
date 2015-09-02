@@ -2,6 +2,7 @@
 #define SERVER_H
 
 #include <QTcpServer>
+#include <QThreadPool>
 #include "fileprocessor.h"
 
 class Connection;
@@ -17,6 +18,7 @@ public:
 
 private:
     QTcpSocket *client;
+    QThreadPool *pool;
 
 
 signals:
