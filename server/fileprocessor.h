@@ -9,16 +9,12 @@ class FileProcessor : public QObject, public QRunnable  {
     Q_OBJECT
 
 public:
-    FileProcessor(QObject *parent = 0);
+    FileProcessor(QString filePath, QMap<QString, QString> *sigMap);
     virtual ~FileProcessor();
-    void processFile();
-    QString filePath;
-
-protected:
     void run();
 
 private:
-    void prepareMap();
+    QString filePath;
     QMap<QString, QString> *sigMap;
     void toJson(QString result, QString filePath);
 

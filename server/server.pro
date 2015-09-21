@@ -6,16 +6,18 @@ INCLUDEPATH += .
 OBJECTS_DIR = _build
 DESTDIR  = ../bin
 
-QT += network widgets core gui
+QT += network widgets core gui concurrent
 HEADERS += \
     main.h \
     server.h \
-    fileprocessor.h
+    fileprocessor.h \
+    clientthread.h
 
 SOURCES += \
     main.cpp \
     server.cpp \
-    fileprocessor.cpp
+    fileprocessor.cpp \
+    clientthread.cpp
 
 OTHER_FILES += \
     base.txt

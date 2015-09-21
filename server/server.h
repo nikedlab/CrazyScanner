@@ -14,22 +14,6 @@ public:
     explicit Server(QObject *parent = 0);
     virtual ~Server();
     void startServer();
-    //FileProcessor *processor;
-
-private:
-    QTcpSocket *client;
-    QThreadPool *pool;
-
-
-signals:
-    void newConnection(Connection *connection);
-
-public slots:
-    void printVerdict(QByteArray verdict);
-
-private slots:
-    void readyRead();
-    void disconnected();
 
 protected:
     void incomingConnection(qintptr socketDescriptor) Q_DECL_OVERRIDE;

@@ -11,33 +11,13 @@
 #include <QJsonDocument>
 
 
-FileProcessor::FileProcessor(QObject *parent)
+FileProcessor::FileProcessor(QString filePath, QMap<QString, QString> *sigMap)
 {
-    sigMap = new QMap<QString, QString>;
-    prepareMap();
+    this->sigMap = sigMap;
+    this->filePath = filePath;
 }
 
 void FileProcessor::run() {
-    processFile();
-}
-
-void FileProcessor::prepareMap() {
-    QFile baseFile(":/av/base/base.txt");
-    if (baseFile.open(QIODevice::ReadOnly)) {
-        QTextStream in(&baseFile);
-        while(!in.atEnd()) {
-            QString line = in.readLine();
-            QStringList parts = line.split(".");
-            QString uuid = parts.takeAt(1);
-            sigMap->insert(parts.takeAt(0), uuid);
-        }
-        baseFile.close();
-    } else {
-        qDebug() << "Error open base.txt";
-    }
-}
-
-void FileProcessor::processFile() {
     QFile target(filePath);
 
     if (target.size() > 157286400) { // 150Mb
@@ -71,5 +51,5 @@ void FileProcessor::toJson(QString result, QString filePath) {
 }
 
 FileProcessor::~FileProcessor() {
-    delete sigMap;
+
 }
