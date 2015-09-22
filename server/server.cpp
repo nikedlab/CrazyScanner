@@ -1,6 +1,6 @@
 #include "server.h"
 
-#include "clientthread.h"
+#include "clientconnection.h"
 #include <QTcpSocket>
 #include <QFile>
 #include <QTextStream>
@@ -29,20 +29,20 @@ void Server::incomingConnection(qintptr socketDescriptor) {
     //QTcpSocket *client = new QTcpSocket();
     //client->setSocketDescriptor(socketDescriptor);
 
-    QThread *t = new QThread();
+    QThread *thread = new QThread();
 
-    ClientThread *clientThread = new ClientThread(socketDescriptor, this);
-
-    clientThread->moveToThread(t);
+    ClientConnection *connection = new ClientConnection(socketDescriptor, this);
+    connection->moveToThread(thread);
 
 //    connect(clientThread, SIGNAL(readyRead()), this, SLOT(readyRead()));
 //    connect(clientThread, SIGNAL(disconnected()), this, SLOT(disconnected()));
 
-    t->start();
+
+    connect(thread, SIGNAL(started()), connection, SLOT(run()));
+    thread->start();
+
     qDebug() << "New connection";
 }
-
-
 
 Server::~Server(){
 

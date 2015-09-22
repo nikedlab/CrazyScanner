@@ -1,4 +1,4 @@
-#include "clientthread.h"
+#include "clientconnection.h"
 
 #include <QDebug>
 #include <QFileInfo>
@@ -7,31 +7,28 @@
 #include <QThreadPool>
 
 
-ClientThread::ClientThread(int socketDescriptor,QObject *parent) :
-    QThread(parent),socketDescriptor(socketDescriptor)
+ClientConnection::ClientConnection(int socketDescriptor, QObject *parent) : QObject(parent), socketDescriptor(socketDescriptor)
 {
     this->sigMap = prepareMap();
-    this->socketDescriptor = socketDescriptor;
 }
 
-void ClientThread::run() {
-    socket = new QTcpSocket(this);
+void ClientConnection::run() {
+    client = new QTcpSocket(this);
 
     qDebug() << "New socket created!";
 
+    connect(client, SIGNAL(disconnected()), this, SLOT(disconnected()));
+    connect(client, SIGNAL(readyRead()), this, SLOT(readyRead()));
 
-    connect(socket, SIGNAL(disconnected()), this, SLOT(disconnected()));
-    connect(socket, SIGNAL(readyRead()), this, SLOT(readyRead()));
-
-    socket->setSocketDescriptor(socketDescriptor);
+    client->setSocketDescriptor(socketDescriptor);
 }
 
-void ClientThread::readyRead() {
-    QTcpSocket *client = (QTcpSocket*) sender();
+void ClientConnection::readyRead() {
 
     QString path = QString::fromUtf8(client->readLine()).trimmed();
     qDebug() << "Path: " + path;
 
+    client->write(QString("Path: " + path + "\n").toUtf8());
 
     QFileInfo fileInfo(path);
     QThreadPool *pool = QThreadPool::globalInstance();
@@ -52,7 +49,12 @@ void ClientThread::readyRead() {
     client->close();
 }
 
-QMap<QString, QString> *ClientThread::prepareMap() {
+void ClientConnection::printVerdict(QByteArray verdict) {
+    qDebug() << verdict;
+    client->write(QString(verdict + "\n").toUtf8());
+}
+
+QMap<QString, QString> *ClientConnection::prepareMap() {
     QMap<QString, QString> *sigMap = new QMap<QString, QString>();
     QFile baseFile(":/av/base/base.txt");
     if (baseFile.open(QIODevice::ReadOnly)) {
@@ -70,13 +72,6 @@ QMap<QString, QString> *ClientThread::prepareMap() {
     return sigMap;
 }
 
-void ClientThread::printVerdict(QByteArray verdict) {
-    qDebug() << verdict;
-    QTcpSocket *client = (QTcpSocket*) sender();
-
-    client->write(QString(verdict + "\n").toUtf8());
-}
-
-void ClientThread::disconnected() {
+void ClientConnection::disconnected() {
     qDebug() << "Client disconnected";
 }
