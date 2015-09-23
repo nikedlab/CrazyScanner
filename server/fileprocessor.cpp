@@ -44,6 +44,7 @@ void FileProcessor::run() {
 
 void FileProcessor::toJson(QString result, QString filePath) {
     QJsonObject root;
+    root["type"] = "verdict";
     root["filePath"] = filePath;
     root["message"] = result;
     QByteArray verdict = QJsonDocument(root).toJson(QJsonDocument::Compact);

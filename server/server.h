@@ -2,8 +2,7 @@
 #define SERVER_H
 
 #include <QTcpServer>
-#include <QThreadPool>
-#include "fileprocessor.h"
+#include <QThread>
 
 class Connection;
 

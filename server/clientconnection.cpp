@@ -4,7 +4,9 @@
 #include <QFileInfo>
 #include <QDirIterator>
 #include <QDir>
-#include <QThreadPool>
+#include <QJsonObject>
+#include <QJsonDocument>
+
 
 
 ClientConnection::ClientConnection(int socketDescriptor, QObject *parent) : QObject(parent), socketDescriptor(socketDescriptor)
@@ -28,25 +30,64 @@ void ClientConnection::readyRead() {
     QString path = QString::fromUtf8(client->readLine()).trimmed();
     qDebug() << "Path: " + path;
 
-    client->write(QString("Path: " + path + "\n").toUtf8());
+    writeToClient(INIT, QString::number(getFilesCount(path)));
 
     QFileInfo fileInfo(path);
     QThreadPool *pool = QThreadPool::globalInstance();
     if (fileInfo.exists()) {
         if (fileInfo.isFile()) {
-            //doScan(fileInfo.absoluteFilePath());
+            doScan(fileInfo.absoluteFilePath(), pool);
         } else {
             QDirIterator dirIterator(path, QDir::NoDotAndDotDot | QDir::AllEntries, QDirIterator::Subdirectories);
             while (dirIterator.hasNext()) {
-                FileProcessor *processor = new FileProcessor(dirIterator.next(), sigMap);
-                processor->setAutoDelete(true);
-                connect(processor, SIGNAL(sendVerdict(QByteArray)), this, SLOT(printVerdict(QByteArray)), Qt::DirectConnection);
-                pool->start(processor);
+                QString file = dirIterator.next();
+                QFileInfo fileInfo(file);
+                if (fileInfo.isDir()) {
+                    continue;
+                }
+                doScan(file, pool);
             }
         }
     }
     pool->waitForDone();
+    writeToClient(DONE, QString("done"));
     client->close();
+}
+
+int ClientConnection::getFilesCount(QString dirPath) {
+    int result = 0;
+    QDirIterator dirIterator(dirPath, QDir::NoDotAndDotDot | QDir::AllEntries, QDirIterator::Subdirectories);
+    while (dirIterator.hasNext()) {
+        QString file = dirIterator.next();
+        QFileInfo fileInfo(file);
+        if (fileInfo.isDir()) {
+            continue;
+        }
+        result++;
+    }
+    return result;
+}
+
+void ClientConnection::writeToClient(ResponceTypes type, QString message) {
+    QJsonObject root;
+    root["message"] = message;
+
+    switch (type) {
+    case INIT:
+        root["type"] = "init";
+        break;
+    case DONE:
+        root["type"] = "done";
+        break;
+    }
+    client->write(QString(QJsonDocument(root).toJson(QJsonDocument::Compact) + "\n").toUtf8());
+}
+
+void ClientConnection::doScan(QString filePath, QThreadPool *pool) {
+    FileProcessor *processor = new FileProcessor(filePath, sigMap);
+    processor->setAutoDelete(true);
+    connect(processor, SIGNAL(sendVerdict(QByteArray)), this, SLOT(printVerdict(QByteArray)), Qt::DirectConnection);
+    pool->start(processor);
 }
 
 void ClientConnection::printVerdict(QByteArray verdict) {
