@@ -21,7 +21,7 @@ void FileProcessor::run() {
     QFile target(filePath);
 
     if (target.size() > 157286400) { // 150Mb
-        toJson("Error! To big file!", filePath);
+        send("Error! To big file!", filePath);
         return;
     }
     if(target.open(QIODevice::ReadOnly)) {
@@ -31,24 +31,19 @@ void FileProcessor::run() {
             QStringMatcher matcher(key, Qt::CaseInsensitive);
             int index = matcher.indexIn(hexContent);
             if (index != -1) {
-                toJson(sigMap->value(key), filePath);
+                send(sigMap->value(key), filePath);
                 return;
             }
         }
     } else {
-        toJson("Error! Can't open target file", filePath);
+        send("Error! Can't open target file", filePath);
         return;
     }
-    toJson("Clear", filePath);
+    send("Clear", filePath);
 }
 
-void FileProcessor::toJson(QString result, QString filePath) {
-    QJsonObject root;
-    root["type"] = "verdict";
-    root["filePath"] = filePath;
-    root["message"] = result;
-    QByteArray verdict = QJsonDocument(root).toJson(QJsonDocument::Compact);
-    emit sendVerdict(verdict);
+void FileProcessor::send(QString result, QString filePath) {
+    emit sendVerdict(result, filePath);
 }
 
 FileProcessor::~FileProcessor() {

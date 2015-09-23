@@ -3,7 +3,8 @@
 #include "client.h"
 
 #include <QDebug>
-#include <QProcess>
+#include <QThread>
+
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -31,27 +32,54 @@ void MainWindow::on_pushButton_clicked()
 
 }
 
-void MainWindow::handle_file_item(QString str) {
-    QFileInfo fileInfo(str);
+void MainWindow::handle_file_item(QString path) {
+    this->path = path;
+    qDebug() << "Selected: " + path;
+    QFileInfo fileInfo(path);
     QString type = "Unknown";
     if (fileInfo.isDir() || fileInfo.isFile()) {
         type = fileInfo.isDir() ? "(Folder)" : "(File)";
     }
 
     ui->sourceType->setText(type);
-    ui->sourcePath->setText(str);
+    ui->sourcePath->setText(path);
     QApplication::processEvents();
 
     ui->sourcePath->setVisible(true);
     ui->sourceType->setVisible(true);
     ui->sourceLabel->setVisible(true);
     ui->startScan->setVisible(true);
+}
 
-    QProcess *process = new QProcess;
-    process->start("server");
+void MainWindow::on_startScan_clicked()
+{
+    process = new QProcess;
+    connect(process, SIGNAL(started()), this, SLOT(processStarted()));
+    connect(process, SIGNAL(error(QProcess::ProcessError)), this, SLOT(processStartError(QProcess::ProcessError)));
+    connect(process, SIGNAL(finished(int,QProcess::ExitStatus)), this, SLOT(processFinished(int,QProcess::ExitStatus)));
+    process->start("./server");
+    bool startServerResult = process->waitForStarted();
+    qDebug() << "Server star attempt: " << startServerResult;
+}
 
-    Client *client = new Client;
-    client->start();
+void MainWindow::processStarted() {
+    qDebug() << "Server started";
+    QThread *thread = new QThread();
+    Client *client = new Client(path);
+    client->moveToThread(thread);
+    connect(thread, SIGNAL(started()), client, SLOT(start()), Qt::DirectConnection);
+    connect(client, SIGNAL(killServer()), this, SLOT(killServer()), Qt::DirectConnection);
+    thread->start();
+}
 
+void MainWindow::killServer(){
+    process->kill();
+}
 
+void MainWindow::processStartError(QProcess::ProcessError error) {
+    qDebug() << "Server start error: " << error;
+}
+
+void MainWindow::processFinished(int exitCode, QProcess::ExitStatus exitStatus) {
+    qDebug() << "Server process finished! Exit code: " << exitCode << " Exit status: " << exitStatus;
 }

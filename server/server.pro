@@ -11,13 +11,15 @@ HEADERS += \
     main.h \
     server.h \
     fileprocessor.h \
-    clientconnection.h
+    clientconnection.h \
+    filelogger.h
 
 SOURCES += \
     main.cpp \
     server.cpp \
     fileprocessor.cpp \
-    clientconnection.cpp
+    clientconnection.cpp \
+    filelogger.cpp
 
 OTHER_FILES += \
     base.txt

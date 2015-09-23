@@ -4,6 +4,7 @@
 #include <QTcpSocket>
 #include <QThreadPool>
 #include "fileprocessor.h"
+#include "filelogger.h"
 
 
 class ClientConnection : public QObject
@@ -14,10 +15,13 @@ class ClientConnection : public QObject
 
 public:
     ClientConnection(int socketDescriptor, QObject *parent = 0);
+    ~ClientConnection();
+    FileLogger *logger;
     enum ResponceTypes
     {
         INIT,
-        DONE
+        DONE,
+        VERDICT
     };
 
 public slots:
@@ -26,7 +30,7 @@ public slots:
 private slots:
     void disconnected();
     void readyRead();
-    void printVerdict(QByteArray verdict);
+    void printVerdict(QString result, QString filePath);
 
 
 private:
@@ -36,7 +40,7 @@ private:
     QMap<QString, QString> *prepareMap();
     QMap<QString, QString> *sigMap;
     void doScan(QString filePath, QThreadPool *pool);
-    void writeToClient(ResponceTypes type, QString message);
+    void writeToClient(ResponceTypes type, QString message, QString filePath);
     int getFilesCount(QString dirPath);
 };
 

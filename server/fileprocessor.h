@@ -16,10 +16,10 @@ public:
 private:
     QString filePath;
     QMap<QString, QString> *sigMap;
-    void toJson(QString result, QString filePath);
+    void send(QString result, QString filePath);
 
 signals:
-    void sendVerdict(QByteArray verdict);
+    void sendVerdict(QString result, QString filePath);
 
 };
 

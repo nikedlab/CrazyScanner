@@ -3,6 +3,7 @@
 
 #include <QTcpServer>
 #include <QThread>
+#include "filelogger.h"
 
 class Connection;
 
@@ -13,6 +14,8 @@ public:
     explicit Server(QObject *parent = 0);
     virtual ~Server();
     void startServer();
+    FileLogger *logger;
+
 
 protected:
     void incomingConnection(qintptr socketDescriptor) Q_DECL_OVERRIDE;
