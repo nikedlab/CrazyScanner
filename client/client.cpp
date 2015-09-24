@@ -3,40 +3,41 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 
-Client::Client(QString request, QObject *parent) :
-    QObject(parent)
+Client::Client(QString request) :
+    QObject()
 {
-    connect(&client, SIGNAL(connected()), this, SLOT(sendRequest()));
-    connect(&client, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(connectError(QAbstractSocket::SocketError)));
     this->request = request;
-
+    client = new QTcpSocket(this);
+    connect(client, SIGNAL(connected()), this, SLOT(sendRequest()));
+    connect(client, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(connectError(QAbstractSocket::SocketError)));
 }
 
 Client::~Client(){
-    client.close();
+
 }
 
 void Client::start() {
     QHostAddress host(QHostAddress::LocalHost);
-    client.connectToHost(host, 1024);
+    client->connectToHost(host, 1024);
 }
 
 void Client::sendRequest() {
-    client.write(request.toUtf8());
-    client.waitForBytesWritten();
-    client.waitForReadyRead();
+    client->write(request.toUtf8());
+    client->waitForBytesWritten();
+    client->waitForReadyRead();
 
     QJsonDocument json;
     QJsonObject jsonObject;
     forever {
-        if (client.canReadLine()) {
-            QByteArray line = client.readLine().trimmed();
+        if (client->canReadLine()) {
+            QByteArray line = client->readLine().trimmed();
             json = QJsonDocument::fromJson(line);
             jsonObject = json.object();
             QString type = jsonObject["type"].toString();
             if (type == "done") {
                 emit compliteScan();
                 emit killServer();
+                break;
             } else if (type == "init") {
                 int count = jsonObject["message"].toInt();
                 emit initProgressBar(count);
@@ -47,6 +48,7 @@ void Client::sendRequest() {
             }
         }
     }
+    qDebug() << "request done";
 }
 
 void Client::connectError(QAbstractSocket::SocketError socketError) {

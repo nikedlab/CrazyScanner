@@ -77,18 +77,25 @@ void MainWindow::on_startScan_clicked()
 void MainWindow::processStarted() {
     qDebug() << "Server started";
     QThread *thread = new QThread();
-    Client *client = new Client(path, this);
+    Client *client = new Client(path);
     client->moveToThread(thread);
+
     connect(thread, SIGNAL(started()), client, SLOT(start()));
     connect(client, SIGNAL(killServer()), this, SLOT(killServer()));
     connect(client, SIGNAL(initProgressBar(int)), this, SLOT(initProgressBar(int)));
     connect(client, SIGNAL(updateProgressBar(QString, QString)), this, SLOT(updateProgressBar(QString, QString)));
     connect(client, SIGNAL(compliteScan()), this, SLOT(compliteScan()));
+
+    connect(client, SIGNAL (killServer()), thread, SLOT (quit()));
+    connect(client, SIGNAL (killServer()), client, SLOT (deleteLater()));
+    connect(thread, SIGNAL (finished()), thread, SLOT (deleteLater()));
+
     thread->start();
 }
 
 void MainWindow::killServer(){
     process->kill();
+    qDebug() << "killServer";
 }
 
 void MainWindow::processStartError(QProcess::ProcessError error) {
@@ -126,4 +133,5 @@ void MainWindow::updateProgressBar(QString file, QString verdict) {
 
 void MainWindow::compliteScan() {
     ui->progressBar->setVisible(false);
+    qDebug() << "compliteScan";
 }

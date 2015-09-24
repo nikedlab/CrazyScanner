@@ -8,7 +8,7 @@ class Client : public QObject
 {
     Q_OBJECT
 public:
-    explicit Client(QString request, QObject *parent = 0);
+    explicit Client(QString request);
     ~Client();
 
 signals:
@@ -23,7 +23,7 @@ public slots:
     void start();
 
 private:
-    QTcpSocket client;
+    QTcpSocket *client;
     QString request;
 
 };
