@@ -22,16 +22,19 @@ void Server::startServer(){
 
 void Server::incomingConnection(qintptr socketDescriptor) {
     logger->writeLog("New connection");
-    QThread *thread = new QThread();
+    thread = new QThread();
     ClientConnection *connection = new ClientConnection(socketDescriptor, this);
     connection->moveToThread(thread);
     connect(thread, SIGNAL(started()), connection, SLOT(run()));
     thread->start();
+
 
     qDebug() << "New connection";
 }
 
 Server::~Server(){
     delete logger;
+    thread->exit();
+    delete thread;
 }
 

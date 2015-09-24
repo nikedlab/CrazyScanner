@@ -8,11 +8,14 @@ class Client : public QObject
 {
     Q_OBJECT
 public:
-    explicit Client(QString request);
+    explicit Client(QString request, QObject *parent = 0);
     ~Client();
 
 signals:
     void killServer();
+    void initProgressBar(int maxSize);
+    void updateProgressBar(QString file, QString verdict);
+    void compliteScan();
 
 public slots:
     void sendRequest();

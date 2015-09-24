@@ -3,8 +3,8 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 
-Client::Client(QString request) :
-    QObject()
+Client::Client(QString request, QObject *parent) :
+    QObject(parent)
 {
     connect(&client, SIGNAL(connected()), this, SLOT(sendRequest()));
     connect(&client, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(connectError(QAbstractSocket::SocketError)));
@@ -22,8 +22,7 @@ void Client::start() {
 }
 
 void Client::sendRequest() {
-    qDebug() << "Request: " << request;
-    client.write(request.toLatin1());
+    client.write(request.toUtf8());
     client.waitForBytesWritten();
     client.waitForReadyRead();
 
@@ -35,9 +34,16 @@ void Client::sendRequest() {
             json = QJsonDocument::fromJson(line);
             jsonObject = json.object();
             QString type = jsonObject["type"].toString();
-            qDebug() << "Type: " << type;
             if (type == "done") {
+                emit compliteScan();
                 emit killServer();
+            } else if (type == "init") {
+                int count = jsonObject["message"].toInt();
+                emit initProgressBar(count);
+            } else if (type == "verdict") {
+                QString verdict = jsonObject["message"].toString();
+                QString filePath = jsonObject["filePath"].toString();
+                emit updateProgressBar(filePath, verdict);
             }
         }
     }

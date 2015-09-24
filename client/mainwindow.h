@@ -28,6 +28,9 @@ private slots:
 
 public slots:
     void killServer();
+    void initProgressBar(int maxSize);
+    void updateProgressBar(QString file, QString verdict);
+    void compliteScan();
 
 private:
     Ui::MainWindow *ui;

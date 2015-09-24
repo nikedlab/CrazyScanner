@@ -130,4 +130,5 @@ void ClientConnection::disconnected() {
 
 ClientConnection::~ClientConnection(){
     delete logger;
+    delete client;
 }

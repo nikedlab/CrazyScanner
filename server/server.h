@@ -16,6 +16,8 @@ public:
     void startServer();
     FileLogger *logger;
 
+private:
+    QThread *thread;
 
 protected:
     void incomingConnection(qintptr socketDescriptor) Q_DECL_OVERRIDE;
