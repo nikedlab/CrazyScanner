@@ -22,12 +22,9 @@ private slots:
     void on_pushButton_clicked();
     void handle_file_item(QString path);
     void on_startScan_clicked();
-    void processStarted();
     void processStartError(QProcess::ProcessError error);
-    void processFinished(int exitCode, QProcess::ExitStatus exitStatus);
 
 public slots:
-    void killServer();
     void initProgressBar(int maxSize);
     void updateProgressBar(QString file, QString verdict);
     void compliteScan();
@@ -37,6 +34,10 @@ private:
     FileDialog *fileDialog;
     QString path;
     QProcess *process;
+    void startClient();
+
+protected:
+    void closeEvent(QCloseEvent *event);
 };
 
 #endif // MAINWINDOW_H

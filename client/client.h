@@ -18,9 +18,10 @@ signals:
     void compliteScan();
 
 public slots:
-    void sendRequest();
+    void sendRequest(QAbstractSocket::SocketState state);
     void connectError(QAbstractSocket::SocketError socketError);
     void start();
+    void readyRead();
 
 private:
     QTcpSocket *client;

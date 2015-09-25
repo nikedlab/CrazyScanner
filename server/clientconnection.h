@@ -39,7 +39,7 @@ private:
     FileProcessor *processor;
     QMap<QString, QString> *prepareMap();
     QMap<QString, QString> *sigMap;
-    void doScan(QString filePath, QThreadPool *pool);
+    void doScan(QString filePath);
     void writeToClient(ResponceTypes type, QString message, QString filePath);
     int getFilesCount(QString dirPath);
 };

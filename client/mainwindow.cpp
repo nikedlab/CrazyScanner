@@ -27,11 +27,22 @@ MainWindow::MainWindow(QWidget *parent) :
     fileDialog = new FileDialog;
 
     connect(fileDialog, SIGNAL(acceptedClicked(QString)), this, SLOT(handle_file_item(QString)));
+
+//    process = new QProcess;
+//    connect(process, SIGNAL(error(QProcess::ProcessError)), this, SLOT(processStartError(QProcess::ProcessError)));
+//    process->start("./server");
+//    bool startServerResult = process->waitForStarted();
+//    qDebug() << "Server star attempt: " << startServerResult;
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
+}
+
+void MainWindow::closeEvent(QCloseEvent *event) {
+    qDebug() << "closeEvent";
+//    process->kill();
 }
 
 void MainWindow::on_pushButton_clicked()
@@ -64,46 +75,29 @@ void MainWindow::on_startScan_clicked()
     while (ui->tableWidget->rowCount() > 0) {
         ui->tableWidget->removeRow(0);
     }
+    startClient();
 
-    process = new QProcess;
-    connect(process, SIGNAL(started()), this, SLOT(processStarted()));
-    connect(process, SIGNAL(error(QProcess::ProcessError)), this, SLOT(processStartError(QProcess::ProcessError)));
-    connect(process, SIGNAL(finished(int,QProcess::ExitStatus)), this, SLOT(processFinished(int,QProcess::ExitStatus)));
-    process->start("./server");
-    bool startServerResult = process->waitForStarted();
-    qDebug() << "Server star attempt: " << startServerResult;
 }
 
-void MainWindow::processStarted() {
-    qDebug() << "Server started";
-    QThread *thread = new QThread();
-    Client *client = new Client(path);
-    client->moveToThread(thread);
+void MainWindow::startClient() {
+        QThread *thread = new QThread();
+        Client *client = new Client(path);
+        client->moveToThread(thread);
 
-    connect(thread, SIGNAL(started()), client, SLOT(start()));
-    connect(client, SIGNAL(killServer()), this, SLOT(killServer()));
-    connect(client, SIGNAL(initProgressBar(int)), this, SLOT(initProgressBar(int)));
-    connect(client, SIGNAL(updateProgressBar(QString, QString)), this, SLOT(updateProgressBar(QString, QString)));
-    connect(client, SIGNAL(compliteScan()), this, SLOT(compliteScan()));
+        connect(thread, SIGNAL(started()), client, SLOT(start()));
+        connect(client, SIGNAL(initProgressBar(int)), this, SLOT(initProgressBar(int)));
+        connect(client, SIGNAL(updateProgressBar(QString, QString)), this, SLOT(updateProgressBar(QString, QString)),  Qt::UniqueConnection);
+        connect(client, SIGNAL(compliteScan()), this, SLOT(compliteScan()));
 
-    connect(client, SIGNAL (killServer()), thread, SLOT (quit()));
-    connect(client, SIGNAL (killServer()), client, SLOT (deleteLater()));
-    connect(thread, SIGNAL (finished()), thread, SLOT (deleteLater()));
+        connect(client, SIGNAL (compliteScan()), thread, SLOT (quit()));
+        connect(client, SIGNAL (compliteScan()), client, SLOT (deleteLater()));
+        connect(thread, SIGNAL (finished()), thread, SLOT (deleteLater()));
 
-    thread->start();
-}
-
-void MainWindow::killServer(){
-    process->kill();
-    qDebug() << "killServer";
+        thread->start();
 }
 
 void MainWindow::processStartError(QProcess::ProcessError error) {
     qDebug() << "Server start error: " << error;
-}
-
-void MainWindow::processFinished(int exitCode, QProcess::ExitStatus exitStatus) {
-    qDebug() << "Server process finished! Exit code: " << exitCode << " Exit status: " << exitStatus;
 }
 
 void MainWindow::initProgressBar(int maxSize) {

@@ -13,10 +13,11 @@ ClientConnection::ClientConnection(int socketDescriptor, QObject *parent) : QObj
 {
     this->sigMap = prepareMap();
     logger = new FileLogger();
+    client = new QTcpSocket(this);
 }
 
 void ClientConnection::run() {
-    client = new QTcpSocket(this);
+
 
     qDebug() << "New socket created!";
     logger->writeLog("New socket created!");
@@ -32,14 +33,12 @@ void ClientConnection::readyRead() {
     QString path = QString::fromUtf8(client->readLine()).trimmed();
     qDebug() << "Path: " + path;
     logger->writeLog("Path: " + path);
-
-    writeToClient(INIT, QString::number(getFilesCount(path)), "");
-
+    int filesCount = getFilesCount(path);
+    writeToClient(INIT, QString::number(filesCount), "");
     QFileInfo fileInfo(path);
-    QThreadPool *pool = QThreadPool::globalInstance();
     if (fileInfo.exists()) {
         if (fileInfo.isFile()) {
-            doScan(fileInfo.absoluteFilePath(), pool);
+            doScan(fileInfo.absoluteFilePath());
         } else {
             QDirIterator dirIterator(path, QDir::NoDotAndDotDot | QDir::AllEntries, QDirIterator::Subdirectories);
             while (dirIterator.hasNext()) {
@@ -48,13 +47,12 @@ void ClientConnection::readyRead() {
                 if (fileInfo.isDir()) {
                     continue;
                 }
-                doScan(file, pool);
+                doScan(file);
             }
         }
     }
-    pool->waitForDone();
+    QThreadPool::globalInstance()->waitForDone();
     writeToClient(DONE, QString("done"), "");
-    client->close();
 }
 
 int ClientConnection::getFilesCount(QString dirPath) {
@@ -91,14 +89,15 @@ void ClientConnection::writeToClient(ResponceTypes type, QString message, QStrin
     }
     QString text = QString(QJsonDocument(root).toJson(QJsonDocument::Compact) + "\n");
     logger->writeLog(text);
-    client->write(text.toUtf8());
+//    client->write(text.toUtf8());
+//    client->waitForBytesWritten();
 }
 
-void ClientConnection::doScan(QString filePath, QThreadPool *pool) {
+void ClientConnection::doScan(QString filePath) {
     FileProcessor *processor = new FileProcessor(filePath, sigMap);
     processor->setAutoDelete(true);
     connect(processor, SIGNAL(sendVerdict(QString, QString)), this, SLOT(printVerdict(QString, QString)), Qt::DirectConnection);
-    pool->start(processor);
+    QThreadPool::globalInstance()->start(processor);
 }
 
 void ClientConnection::printVerdict(QString result, QString filePath) {

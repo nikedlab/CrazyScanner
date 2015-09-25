@@ -16,7 +16,6 @@ FileProcessor::FileProcessor(QString filePath, QMap<QString, QString> *sigMap)
     this->sigMap = sigMap;
     this->filePath = filePath;
 }
-
 void FileProcessor::run() {
     QFile target(filePath);
 
