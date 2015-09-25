@@ -9,22 +9,19 @@
 
 
 
-ClientConnection::ClientConnection(int socketDescriptor, QObject *parent) : QObject(parent), socketDescriptor(socketDescriptor)
+ClientConnection::ClientConnection(int socketDescriptor) : QObject(), socketDescriptor(socketDescriptor)
 {
     this->sigMap = prepareMap();
     logger = new FileLogger();
-    client = new QTcpSocket(this);
+
 }
 
 void ClientConnection::run() {
-
-
-    qDebug() << "New socket created!";
-    logger->writeLog("New socket created!");
-
+    client = new QTcpSocket();
     connect(client, SIGNAL(disconnected()), this, SLOT(disconnected()));
     connect(client, SIGNAL(readyRead()), this, SLOT(readyRead()));
-
+    qDebug() << "New socket created!";
+    logger->writeLog("New socket created!");
     client->setSocketDescriptor(socketDescriptor);
 }
 
@@ -69,7 +66,7 @@ int ClientConnection::getFilesCount(QString dirPath) {
     return result;
 }
 
-void ClientConnection::writeToClient(ResponceTypes type, QString message, QString filePath = "") {
+void ClientConnection::writeToClient(ResponceTypes type, QString message, QString filePath) {
     QJsonObject root;
     root["message"] = message;
 
@@ -87,10 +84,11 @@ void ClientConnection::writeToClient(ResponceTypes type, QString message, QStrin
     default:
         break;
     }
+
     QString text = QString(QJsonDocument(root).toJson(QJsonDocument::Compact) + "\n");
     logger->writeLog(text);
-//    client->write(text.toUtf8());
-//    client->waitForBytesWritten();
+    client->write(text.toUtf8());
+    client->waitForBytesWritten();
 }
 
 void ClientConnection::doScan(QString filePath) {

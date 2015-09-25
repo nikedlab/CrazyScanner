@@ -23,7 +23,7 @@ void Server::startServer(){
 void Server::incomingConnection(qintptr socketDescriptor) {
     logger->writeLog("New connection");
     thread = new QThread();
-    ClientConnection *connection = new ClientConnection(socketDescriptor, this);
+    ClientConnection *connection = new ClientConnection(socketDescriptor);
     connection->moveToThread(thread);
     connect(thread, SIGNAL(started()), connection, SLOT(run()));
     thread->start();

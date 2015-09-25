@@ -14,15 +14,10 @@ class ClientConnection : public QObject
 
 
 public:
-    ClientConnection(int socketDescriptor, QObject *parent = 0);
+    ClientConnection(int socketDescriptor);
     ~ClientConnection();
     FileLogger *logger;
-    enum ResponceTypes
-    {
-        INIT,
-        DONE,
-        VERDICT
-    };
+
 
 public slots:
     void run();
@@ -34,6 +29,12 @@ private slots:
 
 
 private:
+    enum ResponceTypes
+    {
+        INIT,
+        DONE,
+        VERDICT
+    };
     const int socketDescriptor;
     QTcpSocket *client;
     FileProcessor *processor;
@@ -42,6 +43,7 @@ private:
     void doScan(QString filePath);
     void writeToClient(ResponceTypes type, QString message, QString filePath);
     int getFilesCount(QString dirPath);
+
 };
 
 #endif // CLIENTCONNECTION_H
