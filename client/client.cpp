@@ -14,7 +14,7 @@ Client::Client(QString request) :
 }
 
 Client::~Client(){
-    delete client;
+//    delete client;
 }
 
 void Client::start() {
@@ -40,7 +40,7 @@ void Client::readyRead() {
         jsonObject = json.object();
         QString type = jsonObject["type"].toString();
         if (type == "done") {
-            client->close();
+//            client->close();
             emit compliteScan();
         } else if (type == "init") {
             int count = jsonObject["message"].toInt();

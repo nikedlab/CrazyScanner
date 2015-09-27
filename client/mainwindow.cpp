@@ -101,14 +101,15 @@ void MainWindow::processStartError(QProcess::ProcessError error) {
 }
 
 void MainWindow::initProgressBar(int maxSize) {
-    ui->progressBar->setMinimum(0);
-    ui->progressBar->setMaximum(maxSize);
+    ui->progressBar->setRange(0, maxSize);
     ui->progressBar->setVisible(true);
+    ui->progressBar->setValue(0);
+    connect(this, SIGNAL(newProgressValue(int)), ui->progressBar, SLOT(setValue(int)));
 }
 
 void MainWindow::updateProgressBar(QString file, QString verdict) {
     int currentValue = ui->progressBar->value();
-    ui->progressBar->setValue(currentValue++);
+    emit newProgressValue(currentValue + 1);
 
     ui->tableWidget->insertRow(ui->tableWidget->rowCount());
 
@@ -123,6 +124,8 @@ void MainWindow::updateProgressBar(QString file, QString verdict) {
 
     ui->tableWidget->setItem(ui->tableWidget->rowCount() - 1, 0, fileCell);
     ui->tableWidget->setItem(ui->tableWidget->rowCount() - 1, 1, verdictCell);
+
+    ui->tableWidget->scrollToBottom();
 }
 
 void MainWindow::compliteScan() {

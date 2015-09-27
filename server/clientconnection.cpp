@@ -45,6 +45,7 @@ void ClientConnection::readyRead() {
                     continue;
                 }
                 doScan(file);
+                QThread::msleep(15);
             }
         }
     }
@@ -87,8 +88,12 @@ void ClientConnection::writeToClient(ResponceTypes type, QString message, QStrin
 
     QString text = QString(QJsonDocument(root).toJson(QJsonDocument::Compact) + "\n");
     logger->writeLog(text);
+    qDebug() << text.trimmed();
+
     client->write(text.toUtf8());
-    client->waitForBytesWritten();
+    bool res = client->flush();
+    qDebug() << "Flush: " << res << " Type: " << type;
+
 }
 
 void ClientConnection::doScan(QString filePath) {
@@ -99,7 +104,6 @@ void ClientConnection::doScan(QString filePath) {
 }
 
 void ClientConnection::printVerdict(QString result, QString filePath) {
-    qDebug() << filePath << ": " << result;
     writeToClient(VERDICT, result, filePath);
 }
 

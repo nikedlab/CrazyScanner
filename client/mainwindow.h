@@ -29,6 +29,9 @@ public slots:
     void updateProgressBar(QString file, QString verdict);
     void compliteScan();
 
+signals:
+    void newProgressValue(int value);
+
 private:
     Ui::MainWindow *ui;
     FileDialog *fileDialog;
