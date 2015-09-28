@@ -51,6 +51,7 @@ void ClientConnection::readyRead() {
     }
     QThreadPool::globalInstance()->waitForDone();
     writeToClient(DONE, QString("done"), "");
+    emit compliteScan();
 }
 
 int ClientConnection::getFilesCount(QString dirPath) {

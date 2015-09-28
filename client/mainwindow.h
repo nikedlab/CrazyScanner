@@ -25,7 +25,7 @@ private slots:
     void processStartError(QProcess::ProcessError error);
 
 public slots:
-    void initProgressBar(int maxSize);
+    void initProgressBar(int maxFilesSize);
     void updateProgressBar(QString file, QString verdict);
     void compliteScan();
 
