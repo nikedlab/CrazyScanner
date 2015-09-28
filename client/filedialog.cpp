@@ -46,3 +46,10 @@ void FileDialog::on_buttonBox_accepted()
 
     emit acceptedClicked(currentItemPath);
 }
+
+void FileDialog::on_treeView_doubleClicked(const QModelIndex &index)
+{
+    currentItemPath = explorer->fileInfo(index).absoluteFilePath();
+    emit acceptedClicked(currentItemPath);
+    close();
+}

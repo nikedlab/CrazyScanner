@@ -22,6 +22,8 @@ private slots:
 
     void on_buttonBox_accepted();
 
+    void on_treeView_doubleClicked(const QModelIndex &index);
+
 signals:
     void acceptedClicked(QString str);
 

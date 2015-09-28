@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/av/base">
+        <file>base.txt</file>
+    </qresource>
+</RCC>
