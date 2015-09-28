@@ -27,6 +27,8 @@ private slots:
     void readyRead();
     void printVerdict(QString result, QString filePath);
 
+signals:
+    void compliteScan();
 
 private:
     enum ResponceTypes

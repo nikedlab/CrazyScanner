@@ -26,6 +26,11 @@ void Server::incomingConnection(qintptr socketDescriptor) {
     ClientConnection *connection = new ClientConnection(socketDescriptor);
     connection->moveToThread(thread);
     connect(thread, SIGNAL(started()), connection, SLOT(run()));
+
+    connect(connection, SIGNAL (compliteScan()), thread, SLOT (quit()));
+    connect(connection, SIGNAL (compliteScan()), connection, SLOT (deleteLater()));
+    connect(thread, SIGNAL (finished()), thread, SLOT (deleteLater()));
+
     thread->start();
     qDebug() << "New connection";
 }
