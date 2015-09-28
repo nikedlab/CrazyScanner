@@ -100,10 +100,9 @@ void MainWindow::processStartError(QProcess::ProcessError error) {
     qDebug() << "Server start error: " << error;
 }
 
-void MainWindow::initProgressBar(int maxSize) {
-    ui->progressBar->setRange(0, maxSize);
+void MainWindow::initProgressBar(int maxFilesSize) {
+    ui->progressBar->setRange(0, maxFilesSize);
     ui->progressBar->setVisible(true);
-    ui->progressBar->setValue(0);
     connect(this, SIGNAL(newProgressValue(int)), ui->progressBar, SLOT(setValue(int)));
 }
 

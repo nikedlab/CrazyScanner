@@ -43,7 +43,7 @@ void Client::readyRead() {
 //            client->close();
             emit compliteScan();
         } else if (type == "init") {
-            int count = jsonObject["message"].toInt();
+            int count = jsonObject.value("message").toString().toInt();
             emit initProgressBar(count);
         } else if (type == "verdict") {
             QString verdict = jsonObject["message"].toString();
