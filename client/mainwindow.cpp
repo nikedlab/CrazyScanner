@@ -28,11 +28,11 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect(fileDialog, SIGNAL(acceptedClicked(QString)), this, SLOT(handle_file_item(QString)));
 
-//    process = new QProcess;
-//    connect(process, SIGNAL(error(QProcess::ProcessError)), this, SLOT(processStartError(QProcess::ProcessError)));
-//    process->start("./server");
-//    bool startServerResult = process->waitForStarted();
-//    qDebug() << "Server star attempt: " << startServerResult;
+    process = new QProcess;
+    connect(process, SIGNAL(error(QProcess::ProcessError)), this, SLOT(processStartError(QProcess::ProcessError)));
+    process->start("./server");
+    bool startServerResult = process->waitForStarted();
+    qDebug() << "Server star attempt: " << startServerResult;
 }
 
 MainWindow::~MainWindow()
@@ -42,7 +42,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::closeEvent(QCloseEvent *event) {
     qDebug() << "closeEvent";
-//    process->kill();
+    process->kill();
 }
 
 void MainWindow::on_pushButton_clicked()
