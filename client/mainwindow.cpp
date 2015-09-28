@@ -1,7 +1,7 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "client.h"
-#include "viruslistwindow.h"
+
 
 #include <QDebug>
 #include <QThread>
@@ -53,10 +53,10 @@ MainWindow::MainWindow(QWidget *parent) :
 MainWindow::~MainWindow()
 {
     delete ui;
+    delete virusListWindow;
 }
 
 void MainWindow::closeEvent(QCloseEvent *event) {
-    qDebug() << "closeEvent";
     process->kill();
 }
 
@@ -170,7 +170,7 @@ void MainWindow::compliteScan() {
 
 void MainWindow::on_btnShowViruses_clicked()
 {
-    VirusListWindow *virusListWindow = new VirusListWindow(infectedFiles, this);
+    virusListWindow = new VirusListWindow(infectedFiles, this);
     virusListWindow->show();
     virusListWindow->setGeometry(virusListWindow->geometry());
 }

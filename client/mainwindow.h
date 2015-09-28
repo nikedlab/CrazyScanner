@@ -5,6 +5,7 @@
 #include <QLabel>
 #include <QProcess>
 #include "filedialog.h"
+#include "viruslistwindow.h"
 
 namespace Ui {
 class MainWindow;
@@ -44,6 +45,7 @@ private:
     void startClient();
     int currentCount = 0;
     QList<QString> infectedFiles;
+    VirusListWindow *virusListWindow;
 
 protected:
     void closeEvent(QCloseEvent *event);

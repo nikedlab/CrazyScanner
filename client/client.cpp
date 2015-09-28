@@ -14,7 +14,7 @@ Client::Client(QString request) :
 }
 
 Client::~Client(){
-//    delete client;
+    delete client;
 }
 
 void Client::start() {
@@ -23,7 +23,6 @@ void Client::start() {
 }
 
 void Client::sendRequest(QAbstractSocket::SocketState state) {
-    qDebug() << "Connection state: " << state;
     if (state == QAbstractSocket::ConnectedState) {
         client->write(request.toUtf8());
         client->waitForBytesWritten();
@@ -40,7 +39,7 @@ void Client::readyRead() {
         jsonObject = json.object();
         QString type = jsonObject["type"].toString();
         if (type == "done") {
-//            client->close();
+            client->close();
             emit compliteScan();
         } else if (type == "init") {
             int count = jsonObject.value("message").toString().toInt();
