@@ -18,7 +18,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>490</y>
+      <y>520</y>
       <width>101</width>
       <height>34</height>
      </rect>
@@ -85,7 +85,7 @@
     <property name="geometry">
      <rect>
       <x>120</x>
-      <y>490</y>
+      <y>520</y>
       <width>84</width>
       <height>34</height>
      </rect>
@@ -117,6 +117,53 @@
      </rect>
     </property>
    </widget>
+   <widget class="QWidget" name="horizontalLayoutWidget_2">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>480</y>
+      <width>151</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <layout class="QHBoxLayout" name="infectedInfoBlock">
+     <item>
+      <widget class="QLabel" name="infectedCountLabel">
+       <property name="text">
+        <string>Infected: </string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="infectedCount">
+       <property name="text">
+        <string>0</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+   <widget class="QPushButton" name="btnShowViruses">
+    <property name="geometry">
+     <rect>
+      <x>160</x>
+      <y>480</y>
+      <width>93</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Show</string>
+    </property>
+   </widget>
+   <zorder>pushButton</zorder>
+   <zorder>horizontalLayoutWidget</zorder>
+   <zorder>startScan</zorder>
+   <zorder>progressBar</zorder>
+   <zorder>tableWidget</zorder>
+   <zorder>sourcePath</zorder>
+   <zorder>horizontalLayoutWidget_2</zorder>
+   <zorder>btnShowViruses</zorder>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
@@ -124,7 +171,7 @@
      <x>0</x>
      <y>0</y>
      <width>800</width>
-     <height>30</height>
+     <height>25</height>
     </rect>
    </property>
   </widget>

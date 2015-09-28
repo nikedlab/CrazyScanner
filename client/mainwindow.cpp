@@ -1,9 +1,11 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "client.h"
+#include "viruslistwindow.h"
 
 #include <QDebug>
 #include <QThread>
+#include <QPalette>
 
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -16,6 +18,19 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->sourceLabel->setVisible(false);
     ui->startScan->setVisible(false);
     ui->progressBar->setVisible(false);
+
+    ui->infectedCountLabel->setVisible(false);
+    ui->infectedCount->setVisible(false);
+
+    ui->btnShowViruses->setVisible(false);
+
+    QPalette palette = ui->infectedCountLabel->palette();
+    palette.setColor(ui->infectedCountLabel->foregroundRole(), Qt::red);
+    ui->infectedCountLabel->setPalette(palette);
+
+    palette = ui->infectedCount->palette();
+    palette.setColor(ui->infectedCount->foregroundRole(), Qt::red);
+    ui->infectedCount->setPalette(palette);
 
     ui->tableWidget->setColumnCount(2);
     QStringList titles;
@@ -104,6 +119,19 @@ void MainWindow::initProgressBar(int maxFilesSize) {
     ui->progressBar->setRange(0, maxFilesSize);
     ui->progressBar->setVisible(true);
     connect(this, SIGNAL(newProgressValue(int)), ui->progressBar, SLOT(setValue(int)));
+
+    ui->infectedCountLabel->setVisible(true);
+    ui->infectedCount->setVisible(true);
+    connect(this, SIGNAL(signalToUpdateInfectedCount(int)), ui->infectedCount, SLOT(setNum(int)));
+    emit signalToUpdateInfectedCount(0);
+    currentCount = 0;
+    infectedFiles.clear();
+
+    ui->btnShowViruses->setVisible(false);
+}
+
+int MainWindow::updateInfectedCount() {
+    return ++currentCount;
 }
 
 void MainWindow::updateProgressBar(QString file, QString verdict) {
@@ -125,9 +153,24 @@ void MainWindow::updateProgressBar(QString file, QString verdict) {
     ui->tableWidget->setItem(ui->tableWidget->rowCount() - 1, 1, verdictCell);
 
     ui->tableWidget->scrollToBottom();
+
+    if(verdict.startsWith("{")) {
+        emit signalToUpdateInfectedCount(updateInfectedCount());
+        infectedFiles.append(file);
+    }
 }
 
 void MainWindow::compliteScan() {
     ui->progressBar->setVisible(false);
     qDebug() << "compliteScan";
+    if (!infectedFiles.empty()) {
+        ui->btnShowViruses->setVisible(true);
+    }
+}
+
+void MainWindow::on_btnShowViruses_clicked()
+{
+    VirusListWindow *virusListWindow = new VirusListWindow(infectedFiles, this);
+    virusListWindow->show();
+    virusListWindow->setGeometry(virusListWindow->geometry());
 }

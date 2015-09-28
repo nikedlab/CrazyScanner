@@ -23,6 +23,9 @@ private slots:
     void handle_file_item(QString path);
     void on_startScan_clicked();
     void processStartError(QProcess::ProcessError error);
+    int updateInfectedCount();
+
+    void on_btnShowViruses_clicked();
 
 public slots:
     void initProgressBar(int maxFilesSize);
@@ -31,6 +34,7 @@ public slots:
 
 signals:
     void newProgressValue(int value);
+    void signalToUpdateInfectedCount(int value);
 
 private:
     Ui::MainWindow *ui;
@@ -38,6 +42,8 @@ private:
     QString path;
     QProcess *process;
     void startClient();
+    int currentCount = 0;
+    QList<QString> infectedFiles;
 
 protected:
     void closeEvent(QCloseEvent *event);

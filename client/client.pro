@@ -11,14 +11,17 @@ QT += widgets core gui network
 HEADERS += \
     filedialog.h \
     mainwindow.h \
-    client.h
+    client.h \
+    viruslistwindow.h
 
 SOURCES += \
     main.cpp \
     filedialog.cpp \
     mainwindow.cpp \
-    client.cpp
+    client.cpp \
+    viruslistwindow.cpp
 
 FORMS += \
     filedialog.ui \
-    mainwindow.ui
+    mainwindow.ui \
+    viruslistwindow.ui
